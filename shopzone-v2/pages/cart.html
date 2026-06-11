@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — Cart</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/premium.css"/>
+</head>
+<body>
+<div id="navbar"></div>
+<div class="container" style="padding-top:24px">
+  <div class="breadcrumb"><span onclick="location.href='../home.html'">Home</span><span class="sep">›</span><span>Shopping Cart</span></div>
+  <div id="cartContent"></div>
+</div>
+<div id="footer"></div>
+<script src="../js/app.js"></script>
+<script>
+if(!APP.guard()) void 0;
+document.getElementById('navbar').innerHTML=APP.renderNavbar('cart');
+document.getElementById('footer').innerHTML=APP.renderFooter();
+
+function render(){
+  const cart=APP.cart();
+  const div=document.getElementById('cartContent');
+  if(!cart.length){
+    div.innerHTML=`<div class="empty-state"><div class="empty-icon">🛒</div><h3>Your cart is empty</h3><p>Add items to start shopping</p><button class="btn btn-primary" onclick="location.href='products.html'">Shop Now</button></div>`;
+    return;
+  }
+  const subtotal=cart.reduce((s,i)=>s+i.price*i.quantity,0);
+  const discount=Math.round(subtotal*0.12);
+  const delivery=subtotal>499?0:49;
+  const total=subtotal-discount+delivery;
+  const count=cart.reduce((s,i)=>s+i.quantity,0);
+
+  div.innerHTML=`
+  <h2 class="section-title">My Cart (${count} items)</h2>
+  <div class="cart-layout">
+    <div>
+      ${cart.map(item=>`
+      <div class="cart-item-card" id="item-${item.id}">
+        <div class="cart-item-img">${APP.getCategoryEmoji('Electronics')}</div>
+        <div style="flex:1">
+          <div class="cart-item-name">${item.name}</div>
+          <div class="cart-item-brand">${item.brand||'ShopZone'}</div>
+          <div style="font-size:18px;font-weight:700;color:var(--text)">${APP.formatPrice(item.price)}</div>
+          <div style="font-size:12px;color:var(--success);margin-top:2px">🚚 Free delivery</div>
+          <div class="qty-control">
+            <button class="qty-btn" onclick="changeQty(${item.id},-1)">−</button>
+            <span class="qty-val">${item.quantity}</span>
+            <button class="qty-btn" onclick="changeQty(${item.id},1)">+</button>
+            <span class="remove-link" onclick="removeItem(${item.id})">Remove</span>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:17px;font-weight:700">${APP.formatPrice(item.price*item.quantity)}</div>
+          ${item.quantity>1?`<div style="font-size:11px;color:var(--text-muted)">${APP.formatPrice(item.price)} each</div>`:''}
+        </div>
+      </div>`).join('')}
+    </div>
+    <div>
+      <div class="cart-summary-card">
+        <div class="summary-title">Price Details</div>
+        <div class="summary-row"><span>Price (${count} items)</span><span>${APP.formatPrice(subtotal)}</span></div>
+        <div class="summary-row"><span>Discount</span><span class="green">− ${APP.formatPrice(discount)}</span></div>
+        <div class="summary-row"><span>Delivery Charges</span><span class="${delivery===0?'green':''}">${delivery===0?'FREE':'₹'+delivery}</span></div>
+        <div class="summary-row total"><span>Total Amount</span><span>${APP.formatPrice(total)}</span></div>
+        <div class="savings-box">🎉 You will save ${APP.formatPrice(discount)} on this order!</div>
+        <div class="form-group">
+          <label class="form-label">Payment Method</label>
+          <select id="payMethod" class="form-input">
+            <option value="UPI">UPI (Google Pay / PhonePe)</option>
+            <option value="CREDIT_CARD">Credit Card</option>
+            <option value="DEBIT_CARD">Debit Card</option>
+            <option value="NET_BANKING">Net Banking</option>
+            <option value="COD">Cash on Delivery</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Delivery Address</label>
+          <textarea id="address" class="form-input" rows="3" placeholder="Enter your full delivery address with pincode"></textarea>
+        </div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center;padding:14px;font-size:15px" onclick="placeOrder()">
+          Place Order — ${APP.formatPrice(total)}
+        </button>
+        <div style="text-align:center;margin-top:12px;font-size:12px;color:var(--text-muted)">🔒 Safe and Secure Payments</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function changeQty(id,delta){
+  let cart=APP.cart();
+  const item=cart.find(i=>i.id===id);
+  if(!item) return;
+  item.quantity+=delta;
+  if(item.quantity<=0) cart=cart.filter(i=>i.id!==id);
+  APP.saveCart(cart);
+  render();
+}
+
+function removeItem(id){
+  APP.saveCart(APP.cart().filter(i=>i.id!==id));
+  APP.toast('Item removed from cart','info');
+  render();
+}
+
+async function placeOrder(){
+  const cart=APP.cart();
+  const address=document.getElementById('address')?.value?.trim();
+  const method=document.getElementById('payMethod')?.value;
+  if(!address){APP.toast('Please enter delivery address','error');return;}
+  const btn=document.querySelector('.btn-orange');
+  btn.textContent='Placing order...';btn.disabled=true;
+  try{
+    const res=await APP.post('/api/orders',{
+      userId:parseInt(APP.userId()),
+      paymentMethod:method,
+      shippingAddress:address,
+      items:cart.map(i=>({productId:i.id,productName:i.name,quantity:i.quantity,price:i.price}))
+    });
+    if(res.ok&&res.data.status==='CONFIRMED'){
+      APP.saveCart([]);
+      APP.toast('Order placed successfully! 🎉','success');
+      setTimeout(()=>location.href='orders.html',1500);
+    } else if(res.data.status==='PAYMENT_FAILED'){
+      APP.toast('Payment failed. Please try again.','error');
+      btn.textContent='Place Order';btn.disabled=false;
+    } else {
+      APP.toast(res.data.message||'Order failed','error');
+      btn.textContent='Place Order';btn.disabled=false;
+    }
+  }catch(e){APP.toast('Failed to place order. Check services.','error');btn.textContent='Place Order';btn.disabled=false;}
+}
+
+render();
+</script>
+</body>
+</html>

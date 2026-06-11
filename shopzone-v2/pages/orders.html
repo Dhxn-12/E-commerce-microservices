@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — My Orders</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/premium.css"/>
+</head>
+<body>
+<div id="navbar"></div>
+<div class="container" style="padding-top:24px">
+  <div class="breadcrumb"><span onclick="location.href='../home.html'">Home</span><span class="sep">›</span><span>My Orders</span></div>
+  <div class="section-header"><h2 class="section-title">My Orders</h2></div>
+  <div id="ordersList"><div style="text-align:center;padding:60px;color:var(--text-muted)">Loading orders...</div></div>
+</div>
+<div id="footer"></div>
+<script src="../js/app.js"></script>
+<script>
+if(!APP.guard()) void 0;
+document.getElementById('navbar').innerHTML=APP.renderNavbar('orders');
+document.getElementById('footer').innerHTML=APP.renderFooter();
+
+const statusSteps={PENDING:0,CONFIRMED:1,SHIPPED:2,DELIVERED:3};
+const stepLabels=['Ordered','Confirmed','Shipped','Delivered'];
+
+async function load(){
+  try{
+    const orders=await APP.get('/api/orders/user/'+APP.userId());
+    const div=document.getElementById('ordersList');
+    if(!orders||!orders.length){
+      div.innerHTML=`<div class="empty-state"><div class="empty-icon">📦</div><h3>No orders yet</h3><p>Start shopping to see your orders here</p><button class="btn btn-primary" onclick="location.href='products.html'">Shop Now</button></div>`;
+      return;
+    }
+    div.innerHTML=orders.reverse().map(o=>{
+      const step=statusSteps[o.status]??0;
+      const cancelled=o.status==='CANCELLED'||o.status==='PAYMENT_FAILED';
+      return `
+      <div class="order-card">
+        <div class="order-header">
+          <div>
+            <div class="order-id">Order #${o.id}</div>
+            <div class="order-date">${APP.formatDate(o.createdAt)}</div>
+          </div>
+          <span class="order-status-badge status-${o.status}">${o.status.replace('_',' ')}</span>
+        </div>
+        ${!cancelled?`
+        <div class="track-steps">
+          ${stepLabels.map((lbl,i)=>`
+          <div class="track-step">
+            <div class="track-dot ${i<step?'done':i===step?'active':''}">${i<step?'✓':i+1}</div>
+            <div class="track-label">${lbl}</div>
+          </div>`).join('')}
+        </div>`:''}
+        <div class="order-items-list">
+          ${o.items.map(item=>`
+          <div class="order-item-row">
+            <span>${item.productName} × ${item.quantity}</span>
+            <span style="font-weight:600">${APP.formatPrice(item.subtotal)}</span>
+          </div>`).join('')}
+        </div>
+        <div class="order-footer">
+          <div>
+            <div style="font-size:12px;color:var(--text-muted)">${o.paymentMethod} • ${o.shippingAddress?.slice(0,40)}...</div>
+            ${o.paymentId?`<div style="font-size:12px;color:var(--success);margin-top:3px">Payment ID: ${o.paymentId}</div>`:''}
+          </div>
+          <div class="order-total">${APP.formatPrice(o.totalAmount)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('ordersList').innerHTML='<div class="empty-state"><div class="empty-icon">😕</div><h3>Failed to load orders</h3><p>Check if services are running</p></div>';}
+}
+load();
+</script>
+</body>
+</html>

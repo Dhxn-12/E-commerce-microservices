@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — Profile</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/premium.css"/>
+</head>
+<body>
+<div id="navbar"></div>
+<div class="container" style="padding-top:24px">
+  <div class="profile-layout">
+    <div class="profile-sidebar">
+      <div class="profile-avatar" id="avatarEl">U</div>
+      <div class="profile-name" id="nameEl">User</div>
+      <div class="profile-email" id="emailEl">user@example.com</div>
+      <div class="profile-menu-item active" onclick="showSection('info',this)"><i>👤</i> My Profile</div>
+      <div class="profile-menu-item" onclick="location.href='orders.html'"><i>📦</i> My Orders</div>
+      <div class="profile-menu-item" onclick="showSection('wishlist',this)"><i>❤️</i> Wishlist</div>
+      <div class="profile-menu-item" onclick="showSection('settings',this)"><i>⚙️</i> Settings</div>
+      <div class="profile-menu-item" style="margin-top:12px;color:var(--danger)" onclick="APP.logout()"><i>🚪</i> Logout</div>
+    </div>
+    <div>
+      <!-- PROFILE INFO -->
+      <div id="section-info">
+        <div class="data-table">
+          <div class="table-toolbar"><h3>Personal Information</h3></div>
+          <div style="padding:24px">
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="pFirst" placeholder="First name"/></div>
+              <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="pLast" placeholder="Last name"/></div>
+            </div>
+            <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="pEmail" placeholder="Email" readonly style="background:var(--bg)"/></div>
+            <div class="form-group"><label class="form-label">Mobile Number</label><input class="form-input" id="pPhone" placeholder="Mobile number"/></div>
+            <div class="form-group"><label class="form-label">Role</label><input class="form-input" id="pRole" readonly style="background:var(--bg)"/></div>
+            <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+          </div>
+        </div>
+      </div>
+      <!-- WISHLIST -->
+      <div id="section-wishlist" class="hidden">
+        <div class="section-header"><h2 class="section-title">My Wishlist</h2></div>
+        <div id="wishlistGrid" class="product-grid"></div>
+      </div>
+      <!-- SETTINGS -->
+      <div id="section-settings" class="hidden">
+        <div class="data-table">
+          <div class="table-toolbar"><h3>Settings</h3></div>
+          <div style="padding:24px">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:14px;font-weight:600">Dark Mode</div><div style="font-size:12px;color:var(--text-muted)">Switch between light and dark theme</div></div>
+              <button class="btn btn-primary btn-sm" onclick="APP.toggleTheme()">Toggle Theme</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0;border-bottom:1px solid var(--border)">
+              <div><div style="font-size:14px;font-weight:600">Clear Cart</div><div style="font-size:12px;color:var(--text-muted)">Remove all items from cart</div></div>
+              <button class="btn btn-danger btn-sm" onclick="APP.saveCart([]);APP.toast('Cart cleared','info')">Clear Cart</button>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:16px 0">
+              <div><div style="font-size:14px;font-weight:600">Logout</div><div style="font-size:12px;color:var(--text-muted)">Sign out of your account</div></div>
+              <button class="btn btn-danger btn-sm" onclick="APP.logout()">Logout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="footer"></div>
+<script src="../js/app.js"></script>
+<script>
+if(!APP.guard()) void 0;
+document.getElementById('navbar').innerHTML=APP.renderNavbar();
+document.getElementById('footer').innerHTML=APP.renderFooter();
+
+const name=APP.userName(),email=localStorage.getItem('userEmail')||'',role=APP.userRole()||'CUSTOMER';
+document.getElementById('avatarEl').textContent=name[0]?.toUpperCase()||'U';
+document.getElementById('nameEl').textContent=name;
+document.getElementById('emailEl').textContent=email;
+document.getElementById('pEmail').value=email;
+document.getElementById('pRole').value=role;
+document.getElementById('pFirst').value=name;
+
+function showSection(id,el){
+  ['info','wishlist','settings'].forEach(s=>document.getElementById('section-'+s).classList.add('hidden'));
+  document.querySelectorAll('.profile-menu-item').forEach(m=>m.classList.remove('active'));
+  document.getElementById('section-'+id).classList.remove('hidden');
+  el.classList.add('active');
+  if(id==='wishlist') loadWishlist();
+}
+
+function saveProfile(){
+  const first=document.getElementById('pFirst').value.trim();
+  if(first){localStorage.setItem('userName',first);document.getElementById('nameEl').textContent=first;APP.toast('Profile updated!','success');}
+}
+
+async function loadWishlist(){
+  const ids=APP.wishlist();
+  const grid=document.getElementById('wishlistGrid');
+  if(!ids.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🤍</div><h3>No items in wishlist</h3><button class="btn btn-primary" onclick="location.href=\'products.html\'">Browse Products</button></div>';return;}
+  grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">Loading...</div>';
+  try{
+    const all=await APP.get('/api/products');
+    const wish=all.filter(p=>ids.includes(p.id));
+    if(!wish.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--text-muted)">No matching products found</div>';return;}
+    grid.innerHTML=wish.map(p=>`
+    <div class="product-card">
+      <button class="wishlist-btn active" onclick="removeWish(${p.id},'${p.name.replace(/'/g,"\\'")}',this)">❤️</button>
+      <div class="product-img" onclick="location.href='product-detail.html?id=${p.id}'">${APP.getCategoryEmoji(p.category)}</div>
+      <div class="product-info" onclick="location.href='product-detail.html?id=${p.id}'" style="cursor:pointer">
+        <div class="product-brand">${p.brand||p.category}</div>
+        <div class="product-name">${p.name}</div>
+        <div class="product-price"><span class="price-current">${APP.formatPrice(p.price)}</span></div>
+      </div>
+      <div class="product-actions">
+        <button class="btn btn-orange btn-sm" onclick="APP.addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price})">🛒 Add to Cart</button>
+      </div>
+    </div>`).join('');
+  }catch(e){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--danger)">Failed to load</div>';}
+}
+
+function removeWish(id,name,btn){
+  APP.toggleWishlist(id,name);
+  btn.closest('.product-card').remove();
+}
+</script>
+</body>
+</html>

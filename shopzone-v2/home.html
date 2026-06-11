@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — Home</title>
+<link rel="stylesheet" href="css/main.css"/>
+<link rel="stylesheet" href="css/premium.css"/>
+</head>
+<body>
+<div id="navbar"></div>
+
+<div class="marquee-wrap">
+  <div class="marquee">
+    <span>🔥 Mega Sale — Up to 80% Off</span><span>🚚 Free Delivery on orders above ₹499</span>
+    <span>💳 10% cashback on all UPI payments</span><span>📱 New iPhone 15 Series now available</span>
+    <span>👗 Fashion Week Sale — Flat 50% Off</span><span>🏠 Home Makeover — Starts at ₹299</span>
+    <span>🔥 Mega Sale — Up to 80% Off</span><span>🚚 Free Delivery on orders above ₹499</span>
+    <span>💳 10% cashback on all UPI payments</span><span>📱 New iPhone 15 Series now available</span>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-text">
+        <h1>India's Best<br/><span>Online Shopping</span><br/>Destination</h1>
+        <p>Discover millions of products at unbeatable prices.<br/>Fast delivery. Easy returns. Secure payments.</p>
+        <div class="hero-btns">
+          <button class="btn btn-white" onclick="location.href='pages/products.html'">🛍️ Shop Now</button>
+          <button class="btn btn-outline" onclick="location.href='pages/products.html?category=Electronics'">📱 Electronics</button>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="num">10M+</div><div class="lbl">Products</div></div>
+          <div class="hero-stat"><div class="num">5M+</div><div class="lbl">Customers</div></div>
+          <div class="hero-stat"><div class="num">500+</div><div class="lbl">Brands</div></div>
+        </div>
+      </div>
+      <div class="hero-img">🛒</div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="banner-strip">
+    <div class="banner-item" onclick="location.href='pages/products.html?category=Electronics'">
+      <div class="banner-item-icon">⚡</div>
+      <div class="banner-item-text"><h3>Flash Sale</h3><p>Up to 70% off Electronics</p></div>
+    </div>
+    <div class="banner-item" onclick="location.href='pages/products.html?category=Fashion'">
+      <div class="banner-item-icon">👗</div>
+      <div class="banner-item-text"><h3>Fashion Week</h3><p>New arrivals every day</p></div>
+    </div>
+    <div class="banner-item" onclick="location.href='pages/products.html?category=Home'">
+      <div class="banner-item-icon">🏠</div>
+      <div class="banner-item-text"><h3>Home Makeover</h3><p>Refresh your space</p></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">Shop by Category</h2>
+      <span class="see-all" onclick="location.href='pages/products.html'">See All →</span>
+    </div>
+    <div class="categories-grid">
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Electronics'"><div class="cat-icon">📱</div><div class="cat-name">Electronics</div><div class="cat-count">2,450+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Fashion'"><div class="cat-icon">👗</div><div class="cat-name">Fashion</div><div class="cat-count">5,200+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Home'"><div class="cat-icon">🏠</div><div class="cat-name">Home & Living</div><div class="cat-count">1,800+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Books'"><div class="cat-icon">📚</div><div class="cat-name">Books</div><div class="cat-count">10,000+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Sports'"><div class="cat-icon">⚽</div><div class="cat-name">Sports</div><div class="cat-count">900+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Beauty'"><div class="cat-icon">💄</div><div class="cat-name">Beauty</div><div class="cat-count">1,200+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Toys'"><div class="cat-icon">🧸</div><div class="cat-name">Toys</div><div class="cat-count">600+ items</div></div>
+      <div class="cat-card" onclick="location.href='pages/products.html?category=Appliances'"><div class="cat-icon">🔌</div><div class="cat-name">Appliances</div><div class="cat-count">400+ items</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">
+      <h2 class="section-title">🔥 Trending Products</h2>
+      <span class="see-all" onclick="location.href='pages/products.html'">View All →</span>
+    </div>
+    <div id="featuredProducts" class="product-grid">
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+      <div class="skeleton-card"><div class="skeleton skeleton-img"></div><div class="skeleton skeleton-text"></div><div class="skeleton skeleton-text short"></div></div>
+    </div>
+  </div>
+</div>
+
+<div id="footer"></div>
+<script src="js/app.js"></script>
+<script>
+if(!APP.guard()) void 0;
+document.getElementById('navbar').innerHTML = APP.renderNavbar('home');
+document.getElementById('footer').innerHTML = APP.renderFooter();
+
+async function loadFeatured(){
+  try{
+    const products = await APP.get('/api/products');
+    const grid = document.getElementById('featuredProducts');
+    if(!products||!products.length){
+      grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted)">No products yet. Add some from the admin panel!</div>';
+      return;
+    }
+    const show = products.slice(0,8);
+    grid.innerHTML = show.map(p=>{
+      const discount = Math.floor(Math.random()*40+10);
+      const origPrice = Math.round(p.price * (1 + discount/100));
+      const inWishlist = APP.wishlist().includes(p.id);
+      return `
+      <div class="product-card" onclick="location.href='pages/product-detail.html?id=${p.id}'">
+        ${discount>20?`<div class="badge">${discount}% OFF</div>`:''}
+        <button class="wishlist-btn ${inWishlist?'active':''}" onclick="event.stopPropagation();toggleWish(${p.id},'${p.name}',this)">${inWishlist?'❤️':'🤍'}</button>
+        <div class="product-img">${APP.getCategoryEmoji(p.category)}</div>
+        <div class="product-info">
+          <div class="product-brand">${p.brand||p.category}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-rating">
+            <span class="rating-badge">⭐ ${(4+Math.random()).toFixed(1)}</span>
+            <span class="rating-count">(${Math.floor(Math.random()*5000+100)})</span>
+          </div>
+          <div class="product-price">
+            <span class="price-current">${APP.formatPrice(p.price)}</span>
+            <span class="price-original">${APP.formatPrice(origPrice)}</span>
+            <span class="price-discount">${discount}% off</span>
+          </div>
+        </div>
+        <div class="product-actions">
+          <button class="btn btn-orange btn-sm" onclick="event.stopPropagation();APP.addToCart(${p.id},'${p.name}',${p.price},'${p.brand||''}')">🛒 Cart</button>
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();buyNow(${p.id},'${p.name}',${p.price})">Buy Now</button>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('featuredProducts').innerHTML='<p style="grid-column:1/-1;text-align:center;color:var(--text-muted)">Failed to load products</p>'}
+}
+
+function toggleWish(id,name,btn){
+  const added=APP.toggleWishlist(id,name);
+  btn.textContent=added?'❤️':'🤍';
+  btn.classList.toggle('active',added);
+}
+
+function buyNow(id,name,price){
+  APP.addToCart(id,name,price);
+  location.href='pages/cart.html';
+}
+
+loadFeatured();
+</script>
+</body>
+</html>

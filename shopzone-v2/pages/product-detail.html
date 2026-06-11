@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — Product</title>
+<link rel="stylesheet" href="../css/main.css"/>
+<link rel="stylesheet" href="../css/premium.css"/>
+</head>
+<body>
+<div id="navbar"></div>
+<div class="container" style="padding-top:24px">
+  <div class="breadcrumb" id="breadcrumb"></div>
+  <div id="content"><div style="text-align:center;padding:80px;color:var(--text-muted)">Loading product...</div></div>
+</div>
+<div id="footer"></div>
+<script src="../js/app.js"></script>
+<script>
+if(!APP.guard()) void 0;
+document.getElementById('navbar').innerHTML=APP.renderNavbar();
+document.getElementById('footer').innerHTML=APP.renderFooter();
+
+const id=new URLSearchParams(location.search).get('id');
+
+async function load(){
+  if(!id){location.href='products.html';return;}
+  try{
+    const p=await APP.get('/api/products/'+id);
+    if(!p){location.href='products.html';return;}
+    const disc=Math.floor(Math.random()*40+10);
+    const orig=Math.round(p.price*(1+disc/100));
+    const emoji=APP.getCategoryEmoji(p.category);
+    const inW=APP.wishlist().includes(p.id);
+    const rating=(4+Math.random()).toFixed(1);
+    const reviews=Math.floor(Math.random()*5000+100);
+
+    document.getElementById('breadcrumb').innerHTML=`
+      <span onclick="location.href='../home.html'">Home</span><span class="sep">›</span>
+      <span onclick="location.href='products.html?category=${p.category}'">${p.category}</span>
+      <span class="sep">›</span><span>${p.name}</span>`;
+
+    document.getElementById('content').innerHTML=`
+    <div class="product-detail-layout">
+      <div class="product-gallery">
+        <div class="gallery-main" id="mainImg">${emoji}</div>
+        <div class="gallery-thumbs">
+          ${[emoji,'🔍','📦','⭐'].map((e,i)=>`<div class="gallery-thumb ${i===0?'active':''}" onclick="setThumb(this,'${e}')">${e}</div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <div class="detail-brand">${p.brand||p.category}</div>
+        <h1 class="detail-name">${p.name}</h1>
+        <div class="detail-rating">
+          <span class="rating-badge">⭐ ${rating}</span>
+          <span class="rating-count" style="margin-left:6px">${reviews} ratings</span>
+          <span class="chip chip-green" style="margin-left:10px">✓ Verified</span>
+        </div>
+        <div class="price-wrap">
+          <span class="price-big">${APP.formatPrice(p.price)}</span>
+          <span class="price-orig">${APP.formatPrice(orig)}</span>
+          <span class="price-disc">${disc}% off</span>
+        </div>
+        <div class="savings-box" style="background:#e8f5e9;border-radius:8px;padding:10px 14px;font-size:13px;color:var(--success);font-weight:600;margin:10px 0">
+          💰 You save ${APP.formatPrice(orig-p.price)} on this order!
+        </div>
+        <div class="offer-box">
+          <h4>🏷️ Available Offers</h4>
+          <div class="offer-item">10% off on SBI Credit Cards. Max discount ₹1500</div>
+          <div class="offer-item">Get ₹200 cashback on UPI payments above ₹1000</div>
+          <div class="offer-item">No Cost EMI on select cards for orders above ₹3000</div>
+        </div>
+        <div style="margin:16px 0;font-size:14px">
+          <span style="color:var(--success);font-weight:600">✓ In Stock</span>
+          <span style="color:var(--text-muted);margin-left:16px">🚚 Free delivery by Tomorrow</span>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-orange" onclick="APP.addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price},'${p.brand||''}')">🛒 Add to Cart</button>
+          <button class="btn btn-primary" onclick="APP.addToCart(${p.id},'${p.name.replace(/'/g,"\\'")}',${p.price});location.href='cart.html'">⚡ Buy Now</button>
+          <button class="btn ${inW?'btn-danger':'btn-outline'}" id="wishBtn" onclick="toggleWish(${p.id},'${p.name.replace(/'/g,"\\'")}')" style="border-color:var(--danger);color:${inW?'#fff':'var(--danger)'};background:${inW?'var(--danger)':'transparent'}">${inW?'❤️ Wishlisted':'🤍 Wishlist'}</button>
+        </div>
+        <div style="margin-top:24px">
+          <div class="tabs">
+            <div class="tab active" onclick="showTab('desc',this)">Description</div>
+            <div class="tab" onclick="showTab('spec',this)">Specifications</div>
+            <div class="tab" onclick="showTab('reviews',this)">Reviews</div>
+          </div>
+          <div id="tab-desc">
+            <p style="font-size:14px;line-height:1.8;color:var(--text-muted)">${p.description||'Premium quality product from '+( p.brand||p.category)+'. This product offers excellent value for money with superior build quality and performance. Ideal for everyday use.'}</p>
+          </div>
+          <div id="tab-spec" class="hidden">
+            <table class="spec-table">
+              <tr><td>Brand</td><td>${p.brand||'ShopZone'}</td></tr>
+              <tr><td>Category</td><td>${p.category}</td></tr>
+              <tr><td>Price</td><td>${APP.formatPrice(p.price)}</td></tr>
+              <tr><td>Rating</td><td>${rating} / 5</td></tr>
+              <tr><td>Availability</td><td>In Stock</td></tr>
+              <tr><td>Delivery</td><td>Free delivery</td></tr>
+              <tr><td>Returns</td><td>30-day easy returns</td></tr>
+            </table>
+          </div>
+          <div id="tab-reviews" class="hidden">
+            ${[1,2,3].map(i=>`
+            <div style="padding:16px 0;border-bottom:1px solid var(--border)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700">${'ABCDE'[i]}</div>
+                <div><div style="font-size:14px;font-weight:600">Customer ${i}</div><div style="font-size:11px;color:var(--text-muted)">${APP.formatDate(new Date(Date.now()-i*86400000*7))}</div></div>
+                <span class="rating-badge" style="margin-left:auto">⭐ ${(4+Math.random()).toFixed(1)}</span>
+              </div>
+              <p style="font-size:13px;color:var(--text-muted)">Great product! Exactly as described. Fast delivery and good packaging. Highly recommended.</p>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }catch(e){document.getElementById('content').innerHTML='<div class="empty-state"><div class="empty-icon">😕</div><h3>Product not found</h3><button class="btn btn-primary" onclick="location.href=\'products.html\'">Browse Products</button></div>';}
+}
+
+function setThumb(el,emoji){
+  document.querySelectorAll('.gallery-thumb').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('mainImg').textContent=emoji;
+}
+
+function showTab(tab,el){
+  ['desc','spec','reviews'].forEach(t=>document.getElementById('tab-'+t).classList.add('hidden'));
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  el.classList.add('active');
+}
+
+function toggleWish(id,name){
+  const added=APP.toggleWishlist(id,name);
+  const btn=document.getElementById('wishBtn');
+  btn.textContent=added?'❤️ Wishlisted':'🤍 Wishlist';
+  btn.style.background=added?'var(--danger)':'transparent';
+  btn.style.color=added?'#fff':'var(--danger)';
+}
+
+load();
+</script>
+</body>
+</html>

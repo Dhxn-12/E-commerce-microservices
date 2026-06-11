@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>ShopZone — Login</title>
+<link rel="stylesheet" href="css/main.css"/>
+<link rel="stylesheet" href="css/premium.css"/>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-left">
+      <h2>Shop<span style="color:#ffd700">Zone</span></h2>
+      <p>India's most trusted e-commerce platform. Millions of products, best prices, fast delivery.</p>
+      <ul class="auth-features">
+        <li>✅ 10 Million+ Products</li>
+        <li>🚀 Free Fast Delivery</li>
+        <li>🔒 100% Secure Payments</li>
+        <li>↩️ Easy 30-Day Returns</li>
+        <li>🏆 Best Price Guarantee</li>
+      </ul>
+    </div>
+    <div class="auth-right">
+      <!-- LOGIN -->
+      <div id="loginView">
+        <h2>Welcome back!</h2>
+        <p>Login to your ShopZone account</p>
+        <div id="loginErr" class="hidden" style="background:#ffebee;color:#c62828;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;border:1px solid #ffcdd2"></div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="loginEmail" class="form-input" placeholder="Enter your email"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" id="loginPass" class="form-input" placeholder="Enter your password"/>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:14px;font-size:16px;margin-bottom:14px" onclick="doLogin()">Login to ShopZone</button>
+        <p class="auth-switch">New to ShopZone? <span onclick="showRegister()">Create Account</span></p>
+      </div>
+      <!-- REGISTER -->
+      <div id="registerView" class="hidden">
+        <h2>Create Account</h2>
+        <p>Join crores of happy shoppers</p>
+        <div id="regErr" class="hidden" style="background:#ffebee;color:#c62828;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">First Name</label><input type="text" id="regFirst" class="form-input" placeholder="First name"/></div>
+          <div class="form-group"><label class="form-label">Last Name</label><input type="text" id="regLast" class="form-input" placeholder="Last name"/></div>
+        </div>
+        <div class="form-group"><label class="form-label">Email</label><input type="email" id="regEmail" class="form-input" placeholder="Enter email"/></div>
+        <div class="form-group"><label class="form-label">Password</label><input type="password" id="regPass" class="form-input" placeholder="Create password" oninput="checkStrength(this.value)"/>
+          <div id="strengthBar" class="password-strength" style="background:#e0e0e0;height:4px;border-radius:2px;margin-top:6px"></div>
+          <div id="strengthText" style="font-size:11px;color:var(--text-muted);margin-top:3px"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Mobile Number</label><input type="tel" id="regPhone" class="form-input" placeholder="10-digit mobile number"/></div>
+        <button class="btn btn-orange" style="width:100%;justify-content:center;padding:14px;font-size:16px;margin-bottom:14px" onclick="doRegister()">Create Account</button>
+        <p class="auth-switch">Already have an account? <span onclick="showLogin()">Login</span></p>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/app.js"></script>
+<script>
+APP.initTheme();
+if(APP.token()) window.location.href='home.html';
+
+function showRegister(){document.getElementById('loginView').classList.add('hidden');document.getElementById('registerView').classList.remove('hidden')}
+function showLogin(){document.getElementById('registerView').classList.add('hidden');document.getElementById('loginView').classList.remove('hidden')}
+
+function checkStrength(p){
+  const bar=document.getElementById('strengthBar');const txt=document.getElementById('strengthText');
+  const score=(p.length>8?1:0)+(p.length>12?1:0)+(/[A-Z]/.test(p)?1:0)+(/[0-9]/.test(p)?1:0)+(/[^A-Za-z0-9]/.test(p)?1:0);
+  const colors=['#e53935','#fb8c00','#fdd835','#43a047','#1b5e20'];
+  const labels=['Very Weak','Weak','Fair','Strong','Very Strong'];
+  bar.style.background=colors[score-1]||'#e0e0e0';bar.style.width=(score*20)+'%';
+  txt.textContent=score>0?labels[score-1]:'';txt.style.color=colors[score-1]||'';
+}
+
+async function doLogin(){
+  const email=document.getElementById('loginEmail').value.trim();
+  const password=document.getElementById('loginPass').value.trim();
+  const err=document.getElementById('loginErr');
+  if(!email||!password){err.textContent='Please fill all fields';err.classList.remove('hidden');return}
+  try{
+    const res=await fetch('http://localhost:8080/api/users/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password})});
+    const data=await res.json();
+    if(res.ok){
+      localStorage.setItem('token',data.token);localStorage.setItem('userId',data.userId);
+      localStorage.setItem('userEmail',data.email);localStorage.setItem('userRole',data.role);
+      localStorage.setItem('userName',data.email.split('@')[0]);
+      window.location.href='home.html';
+    }else{err.textContent=data.message||'Invalid credentials';err.classList.remove('hidden')}
+  }catch(e){err.textContent='Cannot connect. Make sure all services are running.';err.classList.remove('hidden')}
+}
+
+async function doRegister(){
+  const firstName=document.getElementById('regFirst').value.trim();
+  const lastName=document.getElementById('regLast').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const password=document.getElementById('regPass').value.trim();
+  const phone=document.getElementById('regPhone').value.trim();
+  const err=document.getElementById('regErr');
+  if(!firstName||!lastName||!email||!password){err.textContent='Please fill all required fields';err.classList.remove('hidden');return}
+  try{
+    const res=await fetch('http://localhost:8080/api/users/auth/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({firstName,lastName,email,password,phone})});
+    const data=await res.json();
+    if(res.ok){
+      localStorage.setItem('token',data.token);localStorage.setItem('userId',data.userId);
+      localStorage.setItem('userEmail',data.email);localStorage.setItem('userRole',data.role);
+      localStorage.setItem('userName',firstName);
+      window.location.href='home.html';
+    }else{err.textContent=data.message||'Registration failed';err.classList.remove('hidden')}
+  }catch(e){err.textContent='Cannot connect to server.';err.classList.remove('hidden')}
+}
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=document.getElementById('registerView');v.classList.contains('hidden')?doLogin():doRegister()}});
+</script>
+</body>
+</html>

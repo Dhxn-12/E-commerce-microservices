@@ -1,0 +1,13 @@
+# ─────────────────────────────────────────────
+# API Gateway — PRODUCTION Overrides
+# ─────────────────────────────────────────────
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_USER}:${EUREKA_PASSWORD}@${EUREKA_HOST}:8761/eureka/
+
+logging:
+  level:
+    org.springframework.cloud.gateway: WARN
+    com.ecommerce.gateway: INFO
