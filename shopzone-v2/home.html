@@ -111,9 +111,13 @@ async function loadFeatured(){
       <div class="product-card" onclick="location.href='pages/product-detail.html?id=${p.id}'">
         ${discount>20?`<div class="badge">${discount}% OFF</div>`:''}
         <button class="wishlist-btn ${inWishlist?'active':''}" onclick="event.stopPropagation();toggleWish(${p.id},'${p.name}',this)">${inWishlist?'❤️':'🤍'}</button>
-        <div class="product-img">${APP.getCategoryEmoji(p.category)}</div>
         <div class="product-info">
-          <div class="product-brand">${p.brand||p.category}</div>
+          <div class="product-img">
+            ${p.imageUrl 
+              ? `<img src="${p.imageUrl}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"/><span style="display:none">${APP.getCategoryEmoji(p.category)}</span>`
+              : APP.getCategoryEmoji(p.category)
+            }
+          </div>
           <div class="product-name">${p.name}</div>
           <div class="product-rating">
             <span class="rating-badge">⭐ ${(4+Math.random()).toFixed(1)}</span>
