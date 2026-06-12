@@ -1,0 +1,178 @@
+version: '3.8'
+
+services:
+
+  # ── MySQL Database ──────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: shopzone-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: shopzone123
+      MYSQL_USER: shopzone
+      MYSQL_PASSWORD: shopzone123
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pshopzone123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - shopzone-network
+
+  # ── Eureka Server ───────────────────────────────────────
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    container_name: shopzone-eureka
+    ports:
+      - "8761:8761"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8761/actuator/health"]
+      interval: 20s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - shopzone-network
+
+  # ── API Gateway ─────────────────────────────────────────
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    container_name: shopzone-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+  # ── User Service ────────────────────────────────────────
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    container_name: shopzone-users
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:mysql://mysql:3306/ecommerce_users?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASS=shopzone123
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+      - JWT_SECRET=ecommerce-super-secret-key-2024-must-be-at-least-32-characters-long
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+  # ── Product Service ─────────────────────────────────────
+  product-service:
+    build:
+      context: ./product-service
+      dockerfile: Dockerfile
+    container_name: shopzone-products
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:mysql://mysql:3306/ecommerce_products?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASS=shopzone123
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+  # ── Inventory Service ───────────────────────────────────
+  inventory-service:
+    build:
+      context: ./inventory-service
+      dockerfile: Dockerfile
+    container_name: shopzone-inventory
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:mysql://mysql:3306/ecommerce_inventory?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASS=shopzone123
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+  # ── Payment Service ─────────────────────────────────────
+  payment-service:
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+    container_name: shopzone-payment
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:mysql://mysql:3306/ecommerce_payments?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASS=shopzone123
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+  # ── Order Service ───────────────────────────────────────
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    container_name: shopzone-orders
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_URL=jdbc:mysql://mysql:3306/ecommerce_orders?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - DB_USER=root
+      - DB_PASS=shopzone123
+      - EUREKA_URI=http://eureka-server:8761/eureka/
+    depends_on:
+      mysql:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - shopzone-network
+
+networks:
+  shopzone-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

@@ -1,0 +1,191 @@
+time="2026-06-12T21:13:29+05:30" level=warning msg="C:\\Users\\acer\\Desktop\\e-commerce\\docker-compose.yml: the attribute `version` is obsolete, it will be ignored, please remove it to avoid potential confusion"
+ Image e-commerce-order-service Building 
+ Image e-commerce-inventory-service Building 
+ Image e-commerce-api-gateway Building 
+ Image e-commerce-eureka-server Building 
+ Image e-commerce-user-service Building 
+ Image e-commerce-payment-service Building 
+ Image e-commerce-product-service Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 3.63kB done
+#1 DONE 0.0s
+
+#2 [user-service internal] load build definition from Dockerfile
+#2 transferring dockerfile: 513B done
+#2 DONE 0.1s
+
+#3 [product-service internal] load build definition from Dockerfile
+#3 transferring dockerfile: 513B done
+#3 DONE 0.2s
+
+#4 [order-service internal] load build definition from Dockerfile
+#4 transferring dockerfile: 513B 0.0s done
+#4 DONE 0.1s
+
+#5 [payment-service internal] load build definition from Dockerfile
+#5 transferring dockerfile: 513B done
+#5 DONE 0.2s
+
+#6 [eureka-server internal] load build definition from Dockerfile
+#6 transferring dockerfile: 513B done
+#6 DONE 0.2s
+
+#7 [inventory-service internal] load build definition from Dockerfile
+#7 transferring dockerfile: 513B done
+#7 DONE 0.2s
+
+#8 [eureka-server internal] load metadata for docker.io/library/eclipse-temurin:17-jdk-alpine
+#8 ...
+
+#9 [api-gateway internal] load build definition from Dockerfile
+#9 transferring dockerfile: 513B done
+#9 DONE 0.2s
+
+#10 [auth] library/eclipse-temurin:pull token for registry-1.docker.io
+#10 DONE 0.0s
+
+#8 [api-gateway internal] load metadata for docker.io/library/eclipse-temurin:17-jdk-alpine
+#8 DONE 2.1s
+
+#11 [api-gateway internal] load metadata for docker.io/library/eclipse-temurin:17-jre-alpine
+#11 DONE 3.0s
+
+#12 [eureka-server internal] load .dockerignore
+#12 transferring context: 2B done
+#12 DONE 0.1s
+
+#13 [payment-service internal] load .dockerignore
+#13 transferring context: 2B done
+#13 DONE 0.1s
+
+#14 [eureka-server internal] load build context
+#14 DONE 0.0s
+
+#15 [inventory-service internal] load .dockerignore
+#15 transferring context: 2B done
+#15 DONE 0.1s
+
+#16 [payment-service internal] load build context
+#16 DONE 0.0s
+
+#17 [order-service internal] load .dockerignore
+#17 transferring context: 2B done
+#17 DONE 0.2s
+
+#18 [inventory-service internal] load build context
+#18 DONE 0.0s
+
+#19 [product-service internal] load .dockerignore
+#19 transferring context: 2B done
+#19 DONE 0.2s
+
+#20 [inventory-service builder 1/5] FROM docker.io/library/eclipse-temurin:17-jdk-alpine@sha256:5d14725f0e49e19df217f6ce179039f01ca25f5f9aa958573b467312599ca246
+#20 resolve docker.io/library/eclipse-temurin:17-jdk-alpine@sha256:5d14725f0e49e19df217f6ce179039f01ca25f5f9aa958573b467312599ca246
+#20 ...
+
+#21 [order-service internal] load build context
+#21 DONE 0.0s
+
+#22 [user-service internal] load .dockerignore
+#22 transferring context: 2B done
+#22 DONE 0.3s
+
+#23 [product-service internal] load build context
+#23 DONE 0.0s
+
+#24 [api-gateway internal] load .dockerignore
+#24 transferring context: 2B done
+#24 DONE 0.3s
+
+#25 [api-gateway stage-1 1/4] FROM docker.io/library/eclipse-temurin:17-jre-alpine@sha256:b0ae54a36f82e04dc6c45e40ca5c55762e20b9a0858ee457faf557d440a9b571
+#25 resolve docker.io/library/eclipse-temurin:17-jre-alpine@sha256:b0ae54a36f82e04dc6c45e40ca5c55762e20b9a0858ee457faf557d440a9b571 0.2s done
+#25 DONE 0.2s
+
+#26 [api-gateway stage-1 2/4] WORKDIR /app
+#26 CACHED
+
+#27 [api-gateway stage-1 3/4] RUN addgroup -S spring && adduser -S spring -G spring
+#27 CACHED
+
+#28 [user-service internal] load build context
+#28 DONE 0.0s
+
+#20 [user-service builder 1/5] FROM docker.io/library/eclipse-temurin:17-jdk-alpine@sha256:5d14725f0e49e19df217f6ce179039f01ca25f5f9aa958573b467312599ca246
+#20 resolve docker.io/library/eclipse-temurin:17-jdk-alpine@sha256:5d14725f0e49e19df217f6ce179039f01ca25f5f9aa958573b467312599ca246 0.2s done
+#20 DONE 0.2s
+
+#29 [api-gateway internal] load build context
+#29 transferring context: 1.20kB 0.0s done
+#29 DONE 0.2s
+
+#23 [product-service internal] load build context
+#23 transferring context: 1.68kB 0.0s done
+#23 DONE 0.1s
+
+#16 [payment-service internal] load build context
+#16 transferring context: 1.59kB 0.0s done
+#16 DONE 0.1s
+
+#14 [eureka-server internal] load build context
+#14 transferring context: 906B done
+#14 DONE 0.2s
+
+#21 [order-service internal] load build context
+#21 transferring context: 2.00kB 0.0s done
+#21 DONE 0.2s
+
+#18 [inventory-service internal] load build context
+#18 transferring context: 1.72kB 0.0s done
+#18 DONE 0.2s
+
+#28 [user-service internal] load build context
+#28 transferring context: 2.13kB 0.0s done
+#28 DONE 0.2s
+
+#30 [product-service builder 3/5] COPY pom.xml .
+#30 CACHED
+
+#31 [product-service builder 4/5] COPY src ./src
+#31 CACHED
+
+#32 [eureka-server builder 3/5] COPY pom.xml .
+#32 CACHED
+
+#33 [eureka-server builder 4/5] COPY src ./src
+#33 CACHED
+
+#34 [api-gateway builder 3/5] COPY pom.xml .
+#34 CACHED
+
+#35 [api-gateway builder 4/5] COPY src ./src
+#35 CACHED
+
+#36 [payment-service builder 3/5] COPY pom.xml .
+#36 CACHED
+
+#37 [payment-service builder 4/5] COPY src ./src
+#37 CACHED
+
+#38 [order-service builder 3/5] COPY pom.xml .
+#38 CACHED
+
+#39 [order-service builder 4/5] COPY src ./src
+#39 CACHED
+
+#40 [inventory-service builder 3/5] COPY pom.xml .
+#40 CACHED
+
+#41 [inventory-service builder 4/5] COPY src ./src
+#41 CACHED
+
+#42 [user-service builder 2/5] WORKDIR /app
+#42 CACHED
+
+#43 [user-service builder 3/5] COPY pom.xml .
+#43 CACHED
+
+#44 [user-service builder 4/5] COPY src ./src
+#44 CACHED
+
+#45 [inventory-service builder 5/5] RUN apk add --no-cache maven &&     mvn dependency:go-offline -q &&     mvn clean package -DskipTests -q
+
